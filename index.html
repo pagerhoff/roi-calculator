@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Credit Union Widget ROI Calculator</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/react/18.2.0/umd/react.production.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/umd/react-dom.production.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/babel-standalone/7.23.5/babel.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/tailwindcss/2.2.19/tailwind.min.js"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/tailwindcss/2.2.19/tailwind.min.css" rel="stylesheet">
+</head>
+<body class="bg-gray-50 p-4">
+    <div id="root"></div>
+
+    <script type="text/babel">
+        const Card = ({ children, className = "" }) => (
+            <div className={`bg-white rounded-lg shadow-lg overflow-hidden ${className}`}>
+                {children}
+            </div>
+        );
+
+        const Input = ({ ...props }) => (
+            <input
+                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                {...props}
+            />
+        );
+
+        const Label = ({ children }) => (
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+                {children}
+            </label>
+        );
+
+        const ROICalculator = () => {
+            const [inputs, setInputs] = React.useState({
+                monthlyVisitors: 10000,
+                avgLoanValue: 25000,
+                conversionRate: 0.5,
+                currentClosingRate: 2,
+                expectedClosingIncrease: 15,
+            });
+
+            const calculateROI = () => {
+                const monthlyVisitors = Number(inputs.monthlyVisitors);
+                const avgLoanValue = Number(inputs.avgLoanValue);
+                const conversionRate = Number(inputs.conversionRate) / 100;
+                const currentClosingRate = Number(inputs.currentClosingRate) / 100;
+                const expectedIncrease = Number(inputs.expectedClosingIncrease) / 100;
+
+                const currentMonthlyLoans = monthlyVisitors * conversionRate * currentClosingRate;
+                const improvedMonthlyLoans = monthlyVisitors * conversionRate * (currentClosingRate + (currentClosingRate * expectedIncrease));
+                const additionalLoans = improvedMonthlyLoans - currentMonthlyLoans;
+                const additionalRevenue = additionalLoans * avgLoanValue * 0.03;
+
+                return {
+                    additionalLoans: Math.round(additionalLoans * 12),
+                    additionalRevenue: Math.round(additionalRevenue * 12),
+                    roi: Math.round((additionalRevenue * 12 - 15000) / 15000 * 100)
+                };
+            };
+
+            const results = calculateROI();
+
+            return (
+                <Card className="max-w-3xl mx-auto">
+                    <div className="p-6 border-b border-gray-200">
+                        <h2 className="text-2xl font-bold text-gray-900">Credit Union Widget ROI Calculator</h2>
+                        <p className="mt-1 text-sm text-gray-500">
+                            Calculate your potential return on investment with Chimney widgets
+                        </p>
+                    </div>
+
+                    <div className="p-6 space-y-6">
+                        <div className="grid gap-6 md:grid-cols-2">
+                            <div>
+                                <Label>Monthly Website Visitors</Label>
+                                <Input
+                                    type="number"
+                                    value={inputs.monthlyVisitors}
+                                    onChange={(e) => setInputs({...inputs, monthlyVisitors: e.target.value})}
+                                />
+                            </div>
+                            <div>
+                                <Label>Average Loan Value ($)</Label>
+                                <Input
+                                    type="number"
+                                    value={inputs.avgLoanValue}
+                                    onChange={(e) => setInputs({...inputs, avgLoanValue: e.target.value})}
+                                />
+                            </div>
+                            <div>
+                                <Label>Calculator Usage Rate (%)</Label>
+                                <Input
+                                    type="number"
+                                    value={inputs.conversionRate}
+                                    onChange={(e) => setInputs({...inputs, conversionRate: e.target.value})}
+                                />
+                            </div>
+                            <div>
+                                <Label>Current Application Rate (%)</Label>
+                                <Input
+                                    type="number"
+                                    value={inputs.currentClosingRate}
+                                    onChange={(e) => setInputs({...inputs, currentClosingRate: e.target.value})}
+                                />
+                            </div>
+                        </div>
+
+                        <div className="mt-8 p-6 bg-blue-50 rounded-lg">
+                            <h3 className="text-lg font-semibold mb-4">Projected Annual Impact</h3>
+                            <div className="grid gap-4 md:grid-cols-3">
+                                <div className="p-4 bg-white rounded-lg shadow">
+                                    <div className="text-sm text-gray-600">Additional Loans</div>
+                                    <div className="text-2xl font-bold">{results.additionalLoans}</div>
+                                </div>
+                                <div className="p-4 bg-white rounded-lg shadow">
+                                    <div className="text-sm text-gray-600">Additional Revenue</div>
+                                    <div className="text-2xl font-bold">${results.additionalRevenue.toLocaleString()}</div>
+                                </div>
+                                <div className="p-4 bg-white rounded-lg shadow">
+                                    <div className="text-sm text-gray-600">ROI</div>
+                                    <div className="text-2xl font-bold">{results.roi}%</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div className="bg-gray-50 px-6 py-4">
+                        <p className="text-sm text-gray-600">
+                            Based on industry averages and actual customer results. ROI calculation assumes $15,000 annual investment and 3% revenue per loan value.
+                        </p>
+                    </div>
+                </Card>
+            );
+        };
+
+        ReactDOM.render(<ROICalculator />, document.getElementById('root'));
+    </script>
+</body>
+</html>
